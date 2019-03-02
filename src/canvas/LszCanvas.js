@@ -6,13 +6,24 @@ export default function LszCanvas(canvasId) {
   me.objArr = [];
   me.canvansDom = document.getElementById(canvasId);
 
-me.mouseRectDrawB = true;
+  me.mouseRectDrawB = true;
   me.width = me.canvansDom.clientWidth;
   me.height = me.canvansDom.clientHeight;
+  if (me.width < me.height) {
+    me.rotateWid = me.height;
+    me.height = me.width;
+    me.width = me.rotateWid;
+  }
   me.refreshHook = null;
   me.ctx = me.canvansDom.getContext("2d");
   me.buff = newCtx(me.width, me.height);
-  //焦点变更回调
+  if (me.rotateWid) {
+    me.ctx.translate(me.width, me.height)
+    me.ctx.rotate(270 * Math.PI / 180)
+    me.ctx.translate(me.height - me.width, -me.width)
+  }
+
+  // //焦点变更回调
   me.focusChangeFun = null;
   //输入框
   me.inputBox = null;
@@ -51,12 +62,18 @@ me.mouseRectDrawB = true;
       me.refreshHook.refresh();
     }
     me.refreshEx(me.objArr);
-    if (me.mouseRectDrawB){
+    if (me.mouseRectDrawB) {
       me.mouseRectDraw();
     }
 
     let imgData = me.buff.getImageData(0, 0, me.width, me.height);
-    me.ctx.putImageData(imgData, 0, 0);
+    if (me.rotateWid) {
+      createImageBitmap(imgData).then(img => {
+        me.ctx.drawImage(img, 0, 0)
+      });
+    } else {
+      me.ctx.putImageData(imgData, 0, 0);
+    }
   };
 
   //鼠标矩形
@@ -140,7 +157,7 @@ me.mouseRectDrawB = true;
     return max + 1;
   }
 
-  me.pushImgObj = function (type, rect, text, img,imgRect) {
+  me.pushImgObj = function (type, rect, text, img, imgRect) {
     let obj = {
       type: type,
       left: rect.left,
@@ -150,7 +167,7 @@ me.mouseRectDrawB = true;
       align: "居中",
       text: text,
       img: img,
-      imgRect:imgRect,
+      imgRect: imgRect,
       font: {
         fontFamily: '宋体',
         fontSize: '16px',
