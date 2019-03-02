@@ -6,9 +6,15 @@ export default function LszCanvas(canvasId) {
   me.objArr = [];
   me.canvansDom = document.getElementById(canvasId);
 
-me.mouseRectDrawB = true;
+  me.mouseRectDrawB = true;
   me.width = me.canvansDom.clientWidth;
   me.height = me.canvansDom.clientHeight;
+  if (me.width < me.height) {
+    this.rotateFrm = me.width;//旋转
+    me.width = me.height;
+    me.height = this.rotateFrm;
+  }
+
   me.refreshHook = null;
   me.ctx = me.canvansDom.getContext("2d");
   me.buff = newCtx(me.width, me.height);
@@ -18,7 +24,8 @@ me.mouseRectDrawB = true;
   me.inputBox = null;
 
   let draw = new CanvasDraw(me.buff);
-
+  // me.buff.rotate(90*Math.PI/180);
+  // me.buff.translate(200,200)
   me.mouseRect = {
     type: '',
     x1: 0,
@@ -51,12 +58,21 @@ me.mouseRectDrawB = true;
       me.refreshHook.refresh();
     }
     me.refreshEx(me.objArr);
-    if (me.mouseRectDrawB){
+    if (me.mouseRectDrawB) {
       me.mouseRectDraw();
     }
 
+
     let imgData = me.buff.getImageData(0, 0, me.width, me.height);
+    if (me.rotateFrm){
+      } else{
+
+    }
+
+    // me.ctx.setTransform(0.2,1,1,1,0,0);
     me.ctx.putImageData(imgData, 0, 0);
+
+
   };
 
   //鼠标矩形
@@ -140,7 +156,7 @@ me.mouseRectDrawB = true;
     return max + 1;
   }
 
-  me.pushImgObj = function (type, rect, text, img,imgRect) {
+  me.pushImgObj = function (type, rect, text, img, imgRect) {
     let obj = {
       type: type,
       left: rect.left,
@@ -150,7 +166,7 @@ me.mouseRectDrawB = true;
       align: "居中",
       text: text,
       img: img,
-      imgRect:imgRect,
+      imgRect: imgRect,
       font: {
         fontFamily: '宋体',
         fontSize: '16px',
