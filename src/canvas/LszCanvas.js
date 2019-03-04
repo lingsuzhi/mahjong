@@ -10,22 +10,26 @@ export default function LszCanvas(canvasId) {
   me.width = me.canvansDom.clientWidth;
   me.height = me.canvansDom.clientHeight;
   if (me.width < me.height) {
-    this.rotateFrm = me.width;//旋转
-    me.width = me.height;
-    me.height = this.rotateFrm;
+    me.rotateWid = me.height;
+    me.height = me.width;
+    me.width = me.rotateWid;
   }
-
   me.refreshHook = null;
   me.ctx = me.canvansDom.getContext("2d");
   me.buff = newCtx(me.width, me.height);
-  //焦点变更回调
+  if (me.rotateWid) {
+    me.ctx.translate(me.width, me.height)
+    me.ctx.rotate(270 * Math.PI / 180)
+    me.ctx.translate(me.height - me.width, -me.width)
+  }
+
+  // //焦点变更回调
   me.focusChangeFun = null;
   //输入框
   me.inputBox = null;
 
   let draw = new CanvasDraw(me.buff);
-  // me.buff.rotate(90*Math.PI/180);
-  // me.buff.translate(200,200)
+
   me.mouseRect = {
     type: '',
     x1: 0,
@@ -62,17 +66,14 @@ export default function LszCanvas(canvasId) {
       me.mouseRectDraw();
     }
 
-
     let imgData = me.buff.getImageData(0, 0, me.width, me.height);
-    if (me.rotateFrm){
-      } else{
-
+    if (me.rotateWid) {
+      createImageBitmap(imgData).then(img => {
+        me.ctx.drawImage(img, 0, 0)
+      });
+    } else {
+      me.ctx.putImageData(imgData, 0, 0);
     }
-
-    // me.ctx.setTransform(0.2,1,1,1,0,0);
-    me.ctx.putImageData(imgData, 0, 0);
-
-
   };
 
   //鼠标矩形
